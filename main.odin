@@ -95,7 +95,7 @@ main :: proc() {
 		6, 7, 3
   }
 
-	sprite_ent := Entity{
+	cube_ent := Entity{
 		flags = 0,
 		id = 0,
 		rotation = 0.0,
@@ -112,26 +112,26 @@ main :: proc() {
 	}
 
 	// TODO (David): Orginze shader creation/destrution stuff
-	defer shader.Delete_Program(&sprite_ent.program)
-	shader.Bind_Program(&sprite_ent.program)
+	defer shader.Delete_Program(&cube_ent.program)
+	shader.Bind_Program(&cube_ent.program)
 
-	shader.Read_Uniforms_From_Program(&sprite_ent.program);
-	defer delete(sprite_ent.program.uniforms)
+	shader.Read_Uniforms_From_Program(&cube_ent.program);
+	defer delete(cube_ent.program.uniforms)
 
 	// TODO (David): Take care of ths buffers, maybe move them to the entity?
 	// - We need to have a way to track all allocated memory, and free it when we're done with it
 	// - Probably a bump allocator or something would be a way to do
-	gl.GenVertexArrays(1, &sprite_ent.mesh.vao);
-  defer gl.DeleteVertexArrays(1, &sprite_ent.mesh.vao)
+	gl.GenVertexArrays(1, &cube_ent.mesh.vao);
+  defer gl.DeleteVertexArrays(1, &cube_ent.mesh.vao)
 
-	gl.GenBuffers(1, &sprite_ent.mesh.vbo)
-  defer gl.DeleteBuffers(1, &sprite_ent.mesh.vbo)
+	gl.GenBuffers(1, &cube_ent.mesh.vbo)
+  defer gl.DeleteBuffers(1, &cube_ent.mesh.vbo)
 
-	gl.GenBuffers(1, &sprite_ent.mesh.ebo)
-  defer gl.DeleteBuffers(1, &sprite_ent.mesh.vbo)
+	gl.GenBuffers(1, &cube_ent.mesh.ebo)
+  defer gl.DeleteBuffers(1, &cube_ent.mesh.vbo)
 
-	gl.BindBuffer(gl.ARRAY_BUFFER, sprite_ent.mesh.vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(sprite_ent.mesh.vertices) * size_of(sprite_ent.mesh.vertices[0]), raw_data(sprite_ent.mesh.vertices), gl.STATIC_DRAW)
+	gl.BindBuffer(gl.ARRAY_BUFFER, cube_ent.mesh.vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(cube_ent.mesh.vertices) * size_of(cube_ent.mesh.vertices[0]), raw_data(cube_ent.mesh.vertices), gl.STATIC_DRAW)
 
   gl.VertexAttribPointer(0, 3, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, pos))
 	gl.EnableVertexAttribArray(0)
@@ -140,8 +140,8 @@ main :: proc() {
 	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, uv))
 	gl.EnableVertexAttribArray(1)
 
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, sprite_ent.mesh.ebo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(sprite_ent.mesh.indices) * size_of(sprite_ent.mesh.indices[0]), raw_data(sprite_ent.mesh.indices), gl.STATIC_DRAW)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, cube_ent.mesh.ebo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(cube_ent.mesh.indices) * size_of(cube_ent.mesh.indices[0]), raw_data(cube_ent.mesh.indices), gl.STATIC_DRAW)
 
 	start_tick := time.tick_now()
 
@@ -161,13 +161,13 @@ main :: proc() {
 		// TODO (David): Move to it's component
     model := glm.identity(glm.mat4)
 
-    sprite_ent.position = glm.vec3{ glm.cos(t * 2), glm.sin(t * 2), 0,}
-    sprite_ent.position *= 0.5
+    cube_ent.position = glm.vec3{ glm.cos(t * 2), glm.sin(t * 2), 0,}
+    cube_ent.position *= 0.5
 
-    model[0, 3] = -sprite_ent.position.x
-	  model[1, 3] = -sprite_ent.position.y
-		model[2, 3] = -sprite_ent.position.z
-		model[3].yzx = sprite_ent.position.yzx
+    model[0, 3] = -cube_ent.position.x
+	  model[1, 3] = -cube_ent.position.y
+		model[2, 3] = -cube_ent.position.z
+		model[3].yzx = cube_ent.position.yzx
 
 		model = model * glm.mat4Rotate({0, -1, 0}, t)
 		view := glm.mat4LookAt({3, 3, 3}, {0, 0, 0}, {0, 1, 0})
@@ -175,11 +175,11 @@ main :: proc() {
 
 		// NOTE (David): It's okay for now to calculate the transform on CPU
 		// but we need to move it to the GPU, when we will have lots of entities.
-		sprite_ent.transform = proj * view * model
+		cube_ent.transform = proj * view * model
 
 		// TODO (David): make better system to manage unifroms
-		gl.UniformMatrix4fv(shader.Get_Uniform_Location(&sprite_ent.program, "u_transform"), 1, false, &sprite_ent.transform[0, 0])
-    gl.Uniform1f(shader.Get_Uniform_Location(&sprite_ent.program, "u_time"), t)
+		gl.UniformMatrix4fv(shader.Get_Uniform_Location(&cube_ent.program, "u_transform"), 1, false, &cube_ent.transform[0, 0])
+    gl.Uniform1f(shader.Get_Uniform_Location(&cube_ent.program, "u_time"), t)
 
 		// TODO (David): move rendering logic to separate component
 		gl.Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -188,9 +188,8 @@ main :: proc() {
     gl.ClearColor(CLEAR_COLOR.x, CLEAR_COLOR.y, CLEAR_COLOR.z, CLEAR_COLOR.w)
 		gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-		gl.DrawElements(gl.TRIANGLES, i32(len(sprite_ent.mesh.indices)), gl.UNSIGNED_SHORT, nil)
+		gl.DrawElements(gl.TRIANGLES, i32(len(cube_ent.mesh.indices)), gl.UNSIGNED_SHORT, nil)
 
 		engine.Swap_Buffers(app)
 	}
 }
-
