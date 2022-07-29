@@ -2,7 +2,7 @@
 // @Author: David Kviloria
 // @Date:   2017-05-18T16:00:00-05:00
 //
-package application
+package engine
 
 import SDL "vendor:sdl2"
 import OGL "vendor:OpenGL"
