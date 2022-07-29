@@ -66,7 +66,7 @@ Get_Event :: proc(app: Application) -> ^SDL.Event {
 }
 
 Get_KeyCode :: proc(app: Application) -> SDL.Keycode {
-  Get_Event(app).key.keysym.sym
+  return Get_Event(app).key.keysym.sym
 }
 
 Cleanup_Application :: proc(app: Application) {
