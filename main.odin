@@ -11,7 +11,11 @@ import SDL "vendor:sdl2"
 import gl "vendor:OpenGL"
 import "engine/entity"
 
-CLEAR_COLOR :: glm.vec4{47.0 / 255.0, 54.0 / 255.0, 64.0 / 255, 0.5}
+col_to_clip :: proc(a: f32) -> f32 {
+	return (a / 255.0)
+}
+
+CLEAR_COLOR := glm.vec4{col_to_clip(47.0), col_to_clip(54.0), col_to_clip(64.0), 0.5}
 
 WINDOW_WIDTH  :: 500
 WINDOW_HEIGHT :: 500
