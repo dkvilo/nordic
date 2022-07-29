@@ -12,9 +12,9 @@ Create_Program :: proc(vertex: string, fragment: string) -> Program {
 
 	program, program_ok := gl.load_shaders_source(vertex, fragment);
 	if !program_ok {
-        fmt.eprintln("Failed to compile shaders!");
+    fmt.eprintln("Failed to compile shaders!");
 		return Program{}
-    }
+  }
 
 	sdr := Program { id = program }
 	// Do we need to bind the program one creation time? --- Question
@@ -23,7 +23,7 @@ Create_Program :: proc(vertex: string, fragment: string) -> Program {
 	// TODO (David): Free uniforms buffer when program is destroyed
 	// NOTE: Maybe we should cache the uniforms here? === Question
 	// Read_Uniforms_From_Program(sdr)
-	return sdr 
+	return sdr
 }
 
 Get_Uniform_Location :: proc(program: ^Program, name: string) -> i32 {
